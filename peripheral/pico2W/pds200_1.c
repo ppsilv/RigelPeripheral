@@ -8,6 +8,10 @@
 #include "pico/multicore.h"
 #include "lwip/tcp.h"
 
+#undef ETHERNET_VIA_WIFI
+
+
+#ifdef ETHERNET_VIA_WIFI
 
 #define WIFI_SSID "OpenSoftware4"
 #define WIFI_PASSWORD "santos@info09"
@@ -266,6 +270,7 @@ void start_tcp_server() {
     tcp_accept(listen_pcb, tcp_server_accept);
     printf("TCP Server listening on port %d...\n", PORT);
 }
+#endif
 
 #include "hardware/pio.h"
 #include "orion_bus.pio.h" // Cabeçalho gerado automaticamente pelo pioasm
@@ -281,7 +286,8 @@ extern void kbd_int_on();
 // ============================================================================
 void core1_entry(void) {
     uint8_t data;
-    printf("Core 1 iniciando keyboard PS2\n");
+
+#ifdef ETHERNET_VIA_WIFI
     crc32_init();
     // Initialize Wi-Fi chip in station architecture mode
     if (cyw43_arch_init()) {
@@ -300,12 +306,15 @@ void core1_entry(void) {
     printf("Connected! IP Address: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_default)));
     //Launch the socket setup
     start_tcp_server();
-
+#endif
+    printf("Core 1 iniciando keyboard PS2\n");
     char ch;
     init_kbd();
 
     while (true) {
+#ifdef ETHERNET_VIA_WIFI
         cyw43_arch_poll();
+#endif        
         kbd_poll();                    /* nunca bloqueia -- consome o que a UART tiver */
 
         int ch = get_char_nonblocking();
@@ -317,6 +326,47 @@ void core1_entry(void) {
         tight_loop_contents();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

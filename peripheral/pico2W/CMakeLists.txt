@@ -45,7 +45,8 @@ pico_sdk_init()
 add_subdirectory(./FatFs_SPI FatFs_SPI)
 
 # Add executable. Default name is the project name, version 0.1
-add_executable(pds200Pico2  pds200.c pds200_1.c orion_bus.c ps2_keyboard.c ringbuffer.c  hw_config.c sd.c Serial/orion_serial.c kbd_usb/kbd_usb.c)
+add_executable(pds200Pico2  pds200.c pds200_1.c orion_bus.c ps2_keyboard.c ringbuffer.c
+hw_config.c sd.c Serial/orion_serial.c kbd_usb/kbd_usb.c ds1307.c rtc_converter.c )
 
 pico_generate_pio_header(pds200Pico2 ${CMAKE_CURRENT_SOURCE_DIR}/PIOs/orion_bus.pio)
 pico_generate_pio_header(pds200Pico2 ${CMAKE_CURRENT_SOURCE_DIR}/PIOs/ps2_keyboard.pio)

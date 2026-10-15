@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pdsilva/project/Orion/OrionBios/peripheral/pico2W
+CMAKE_SOURCE_DIR = /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2W
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pdsilva/project/Orion/OrionBios/peripheral/pico2W/build
+CMAKE_BINARY_DIR = /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2W/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/project/Orion/OrionBios/peripheral/pico2W/build/CMakeFiles /home/pdsilva/project/Orion/OrionBios/peripheral/pico2W/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2W/build/CMakeFiles /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2W/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/project/Orion/OrionBios/peripheral/pico2W/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2W/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -555,6 +555,30 @@ Serial/orion_serial.s: Serial/orion_serial.c.s
 Serial/orion_serial.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/Serial/orion_serial.c.s
 .PHONY : Serial/orion_serial.c.s
+
+ds1307.o: ds1307.c.o
+.PHONY : ds1307.o
+
+# target to build an object file
+ds1307.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/ds1307.c.o
+.PHONY : ds1307.c.o
+
+ds1307.i: ds1307.c.i
+.PHONY : ds1307.i
+
+# target to preprocess a source file
+ds1307.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/ds1307.c.i
+.PHONY : ds1307.c.i
+
+ds1307.s: ds1307.c.s
+.PHONY : ds1307.s
+
+# target to generate assembly for a file
+ds1307.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/ds1307.c.s
+.PHONY : ds1307.c.s
 
 home/pdsilva/.pico-sdk/sdk/2.2.0/lib/cyw43-driver/src/cyw43_ctrl.o: home/pdsilva/.pico-sdk/sdk/2.2.0/lib/cyw43-driver/src/cyw43_ctrl.c.o
 .PHONY : home/pdsilva/.pico-sdk/sdk/2.2.0/lib/cyw43-driver/src/cyw43_ctrl.o
@@ -5052,6 +5076,30 @@ ringbuffer.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/ringbuffer.c.s
 .PHONY : ringbuffer.c.s
 
+rtc_converter.o: rtc_converter.c.o
+.PHONY : rtc_converter.o
+
+# target to build an object file
+rtc_converter.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/rtc_converter.c.o
+.PHONY : rtc_converter.c.o
+
+rtc_converter.i: rtc_converter.c.i
+.PHONY : rtc_converter.i
+
+# target to preprocess a source file
+rtc_converter.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/rtc_converter.c.i
+.PHONY : rtc_converter.c.i
+
+rtc_converter.s: rtc_converter.c.s
+.PHONY : rtc_converter.s
+
+# target to generate assembly for a file
+rtc_converter.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pds200Pico2.dir/build.make CMakeFiles/pds200Pico2.dir/rtc_converter.c.s
+.PHONY : rtc_converter.c.s
+
 sd.o: sd.c.o
 .PHONY : sd.o
 
@@ -5134,6 +5182,9 @@ help:
 	@echo "... Serial/orion_serial.o"
 	@echo "... Serial/orion_serial.i"
 	@echo "... Serial/orion_serial.s"
+	@echo "... ds1307.o"
+	@echo "... ds1307.i"
+	@echo "... ds1307.s"
 	@echo "... home/pdsilva/.pico-sdk/sdk/2.2.0/lib/cyw43-driver/src/cyw43_ctrl.o"
 	@echo "... home/pdsilva/.pico-sdk/sdk/2.2.0/lib/cyw43-driver/src/cyw43_ctrl.i"
 	@echo "... home/pdsilva/.pico-sdk/sdk/2.2.0/lib/cyw43-driver/src/cyw43_ctrl.s"
@@ -5696,6 +5747,9 @@ help:
 	@echo "... ringbuffer.o"
 	@echo "... ringbuffer.i"
 	@echo "... ringbuffer.s"
+	@echo "... rtc_converter.o"
+	@echo "... rtc_converter.i"
+	@echo "... rtc_converter.s"
 	@echo "... sd.o"
 	@echo "... sd.i"
 	@echo "... sd.s"
