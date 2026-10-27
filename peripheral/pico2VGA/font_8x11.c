@@ -8,7 +8,7 @@ const unsigned char  font_width=8;
 const unsigned char  font_size=1;
 */
 //const unsigned char font_8x16[16*130]= {
-const unsigned char __not_in_flash("font_8x11") font_8x11[11*130] ={
+const unsigned char font_8x11[11*130] ={
    // code x00
    0b00000000, // 1
    0b00000000, // 2

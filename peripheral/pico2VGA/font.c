@@ -45,38 +45,38 @@ static font_t font_8x16_2_info = {
     .size = 1,            
     .data = font_8x16_2
 };
-static font_t font_8x16_font_sperry_info = {
-    .name = "Font 8x16_font_sperry",
+static font_t font_8x16_sperry_info = {
+    .name = "Font 8x16_sperry",
     .height = 16,
     .width = 8,
     .size = 1,
     .data = font_sperry
 };
 
-static font_t font_8x16_font_acm_info = {
-    .name = "Font 8x16_font_acm",
+static font_t font_8x16_acm_info = {
+    .name = "Font 8x16_acm",
     .height = 16,
     .width = 8,
     .size = 1,
     .data = font_acm
 };
 
-static font_t font_8x16_font_sweet16_info = {
-    .name = "Font 8x16_font_sweet16",
+static font_t font_8x16_sweet16_info = {
+    .name = "Font 8x16_sweet16",
     .height = 16,
     .width = 8,
     .size = 1,
     .data = font_sweet16
 };
-static font_t font_8x16_font_toshiba_info = {
-    .name = "Font 8x16_font_toshiba",
+static font_t font_8x16_toshiba_info = {
+    .name = "Font 8x16_toshiba",
     .height = 16,
     .width = 8,
     .size = 1,
     .data = font_toshiba
 };
-static font_t font_8x16_font_verite_info = {
-    .name = "Font 8x16_font_verite",
+static font_t font_8x16_verite_info = {
+    .name = "Font 8x16_verite",
     .height = 16,
     .width = 8,
     .size = 1,
@@ -125,7 +125,7 @@ font_t * set_font(uint8_t fonte){
             return &font_8x16_sperry_info;
             break;
         case FONTE_8X16_SWEET:
-            return &font_8x16_sweet_info;
+            return &font_8x16_sweet16_info;
             break;
         default:
             return 0;             

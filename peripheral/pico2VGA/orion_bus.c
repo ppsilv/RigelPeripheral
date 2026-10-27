@@ -124,12 +124,18 @@ void __not_in_flash_func(gerenciar_barramento_m68k)(PIO pio, uint sm){
                         break; 
                 case D_REG_SETFONT:
                     font_t *font = set_font(dado_m68k);
-                    setTextFont(font);
+                    vga->setTextFont(font);
                     vga->clrscr();
                     break;    
 
                 case D_RUN_CMD:
                     switch(dado_m68k){
+                        case CMD_SET_CUR_ON:
+                            vga->setTextCursorVisible(true);
+                            break;
+                        case CMD_SET_CUR_OFF:
+                            vga->setTextCursorVisible(false);
+                            break;
                         case CMD_SET_CUR_POS:
                             vga->setTextCursorPos(cursor_x,cursor_y);
                             break;

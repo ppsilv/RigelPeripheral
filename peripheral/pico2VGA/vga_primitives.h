@@ -44,6 +44,7 @@ struct vga_text {
   uint8_t (*getTextSize)(void);
   uint16_t (*get_blink_interval)(void);
   //setters
+  void (*setTextFont)(font_t *font);
   void (*setTextColor)(char c, char b);
 //  void (*setTextSize)(uint8_t s);
   void (*setTextCursorPos)(uint16_t x, uint16_t y);

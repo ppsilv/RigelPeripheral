@@ -569,6 +569,7 @@ vga_t* create_screen(screenMode_t mode){ //,uint8_t active_buffer1[],uint32_t tx
 
   set_vga_mode(mode);
 
+  vga->setTextFont = setTextFont;
   vga->printString = printString;
   vga->setTextColor = setTextColor;
   vga->getTextColor = getTextColor;

@@ -26,16 +26,24 @@ typedef struct
 #define     FONTE_8X16_SPERRY       0x12
 #define     FONTE_8X16_SWEET        0x13
 
-.data = font_verite
-.data = font_toshiba
-.data = font_acm
-.data = font_sperry
-.data = font_sweet16
+//.data = font_verite;
+//.data = font_toshiba;
+//.data = font_acm;
+//.data = font_sperry;
+//.data = font_sweet16;
 
 
 
 extern font_t * set_font(uint8_t fonte);
 
+extern const uint8_t font_verite[16 * 255];
+extern const uint8_t font_toshiba[16 * 255];
+extern const uint8_t font_acm[16 * 255];
+extern const uint8_t font_sperry[16 * 255];
+extern const uint8_t font_sweet16[16 * 255];
+
+
+extern const uint8_t font_8x11[11 * 130];
 extern const uint8_t font_8x12[16 * 128];
 extern const unsigned char font_8x14[16 * 128];
 extern const unsigned char font_8x16[16 * 130];

@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pdsilva/Projects/Orion/OrionBios/peripheral/pico2VGA
+CMAKE_SOURCE_DIR = /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2VGA
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pdsilva/Projects/Orion/OrionBios/peripheral/pico2VGA/build
+CMAKE_BINARY_DIR = /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2VGA/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/Projects/Orion/OrionBios/peripheral/pico2VGA/build/CMakeFiles /home/pdsilva/Projects/Orion/OrionBios/peripheral/pico2VGA/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2VGA/build/CMakeFiles /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2VGA/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/Projects/Orion/OrionBios/peripheral/pico2VGA/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pdsilva/project/rigel/RigelPeripheral/peripheral/pico2VGA/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -356,6 +356,30 @@ font.s: font.c.s
 font.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/font.c.s
 .PHONY : font.c.s
+
+font_8x11.o: font_8x11.c.o
+.PHONY : font_8x11.o
+
+# target to build an object file
+font_8x11.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/font_8x11.c.o
+.PHONY : font_8x11.c.o
+
+font_8x11.i: font_8x11.c.i
+.PHONY : font_8x11.i
+
+# target to preprocess a source file
+font_8x11.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/font_8x11.c.i
+.PHONY : font_8x11.c.i
+
+font_8x11.s: font_8x11.c.s
+.PHONY : font_8x11.s
+
+# target to generate assembly for a file
+font_8x11.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/font_8x11.c.s
+.PHONY : font_8x11.c.s
 
 font_8x12.o: font_8x12.c.o
 .PHONY : font_8x12.o
@@ -2405,6 +2429,30 @@ vga_drv.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/vga_drv.c.s
 .PHONY : vga_drv.c.s
 
+vga_fonts.o: vga_fonts.c.o
+.PHONY : vga_fonts.o
+
+# target to build an object file
+vga_fonts.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/vga_fonts.c.o
+.PHONY : vga_fonts.c.o
+
+vga_fonts.i: vga_fonts.c.i
+.PHONY : vga_fonts.i
+
+# target to preprocess a source file
+vga_fonts.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/vga_fonts.c.i
+.PHONY : vga_fonts.c.i
+
+vga_fonts.s: vga_fonts.c.s
+.PHONY : vga_fonts.s
+
+# target to generate assembly for a file
+vga_fonts.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vgaPico2.dir/build.make CMakeFiles/vgaPico2.dir/vga_fonts.c.s
+.PHONY : vga_fonts.c.s
+
 vga_graphos.o: vga_graphos.c.o
 .PHONY : vga_graphos.o
 
@@ -2483,6 +2531,9 @@ help:
 	@echo "... font.o"
 	@echo "... font.i"
 	@echo "... font.s"
+	@echo "... font_8x11.o"
+	@echo "... font_8x11.i"
+	@echo "... font_8x11.s"
 	@echo "... font_8x12.o"
 	@echo "... font_8x12.i"
 	@echo "... font_8x12.s"
@@ -2739,6 +2790,9 @@ help:
 	@echo "... vga_drv.o"
 	@echo "... vga_drv.i"
 	@echo "... vga_drv.s"
+	@echo "... vga_fonts.o"
+	@echo "... vga_fonts.i"
+	@echo "... vga_fonts.s"
 	@echo "... vga_graphos.o"
 	@echo "... vga_graphos.i"
 	@echo "... vga_graphos.s"

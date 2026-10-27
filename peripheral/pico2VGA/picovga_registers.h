@@ -63,6 +63,9 @@
 #define CMD_DRAW_FILLRECT               0xB6
 #define CMD_DRAW_FILLTRIANGLE           0xB5
 #define CMD_DRAW_MULTILINE              0xB4
+#define CMD_SET_CUR_ON                  0xB3
+#define CMD_SET_CUR_OFF                 0xB2
+
 
 #endif
 
