@@ -8,6 +8,7 @@
  *   0x03 dia da semana (1..7)                          0x07 controle (SQW)
  * Todos em BCD.
  */
+#include <stdio.h>
 #include "ds1307.h"
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
@@ -18,6 +19,13 @@
 #define HOUR_12H      0x40
 #define HOUR_PM       0x20
 #define I2C_TIMEOUT_US 20000          /* 20 ms: nao trava se o chip sumir */
+
+#define RTC_DEBUG 1
+#ifdef RTC_DEBUG
+#define RTC_DBG(...) printf(__VA_ARGS__)
+#else
+#define RTC_DBG(...) ((void)0)
+#endif
 
 static inline uint8_t bcd2bin(uint8_t v) { return (uint8_t)((v >> 4) * 10 + (v & 0x0F)); }
 static inline uint8_t bin2bcd(uint8_t v) { return (uint8_t)(((v / 10) << 4) | (v % 10)); }
@@ -121,6 +129,15 @@ bool ds1307_write(const rtc_time_t *t)
     uint8_t r[7];
 
     if (t == NULL) return false;
+    RTC_DBG("year [%04d]\n",t->year);
+    RTC_DBG("month[%04d]\n",t->month);
+    RTC_DBG("day  [%04d]\n",t->day);
+    RTC_DBG("wday [%04d]\n",(ds1307_weekday(t->year, t->month, t->day) + 1));
+    RTC_DBG("hour [%04d]\n",t->hour);
+    RTC_DBG("min  [%04d]\n",t->minute);
+    RTC_DBG("seg  [%04d]\n",t->second);
+
+
     if (t->year < 2000 || t->year > 2099 || t->month < 1 || t->month > 12 ||
         t->day < 1 || t->day > days_in_month(t->year, t->month) ||
         t->hour > 23 || t->minute > 59 || t->second > 59)

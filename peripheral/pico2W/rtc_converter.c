@@ -15,11 +15,11 @@ void timestamp_to_rtc(unsigned long ts, rtc_time_t *rtc) {
     unsigned long seconds = ts % 60;
     ts /= 60;
     rtc->second = (uint8_t)seconds;
-    
+
     unsigned long minutes = ts % 60;
     ts /= 60;
     rtc->minute = (uint8_t)minutes;
-    
+
     unsigned long hours = ts % 24;
     ts /= 24;
     rtc->hour = (uint8_t)hours;
@@ -27,21 +27,20 @@ void timestamp_to_rtc(unsigned long ts, rtc_time_t *rtc) {
     rtc->weekday = (uint8_t)((ts + 4) % 7); /* 1970-01-01 foi quinta-feira (4) */
 
     /* Algoritmo de conversão de dias para data civil (Gregório) */
-    unsigned long z = ts + 719468;
+    unsigned long z   = ts + 719468;
     unsigned long era = z / 146097;
     unsigned long doe = z - era * 146097;
-    unsigned year = (era * 400) + (doe - doe/1460 + doe/36524 - doe/146096) / 365;
-    unsigned doy = doe - (365 * year + year/4 - year/100);
-    unsigned mp = (5 * doy + 2) / 153;
-    unsigned day = doy - (153 * mp + 2) / 5 + 1;
-    unsigned month = mp < 10 ? mp + 3 : mp - 9;
-    year += (month <= 2);
+    unsigned long yoe = (doe - doe/1460 + doe/36524 - doe/146096) / 365;   /* ano na era, 0..399 */
+    unsigned long doy = doe - (365 * yoe + yoe/4 - yoe/100);               /* dia do ano, a partir de 1 de março */
+    unsigned long mp  = (5 * doy + 2) / 153;
+    unsigned long day = doy - (153 * mp + 2) / 5 + 1;
+    unsigned long month = (mp < 10) ? mp + 3 : mp - 9;
+    unsigned long year  = yoe + era * 400 + (month <= 2);
 
-    rtc->year = (uint16_t)year;
+    rtc->year  = (uint16_t)year;
     rtc->month = (uint8_t)month;
-    rtc->day = (uint8_t)day;
+    rtc->day   = (uint8_t)day;
 }
-
 /* Converte rtc_time_t para timestamp (unsigned long) */
 unsigned long rtc_to_timestamp(const rtc_time_t *rtc) {
     unsigned y = rtc->year;
