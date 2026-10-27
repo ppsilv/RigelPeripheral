@@ -50,7 +50,7 @@
   As outras (teclado, etc.) continuam por NIVEL: o IPL volta se a fonte ainda estiver ativa.
   Para tornar outra IRQ de borda, some o bit dela aqui.
 */
-#define EDGE_IRQS  (1 << IRQ2_PIN)
+#define EDGE_IRQS  ((1 << IRQ2_PIN) | (1 << IRQ3_PIN))
 
 #define TIMEOUT  1000
 long timer1=millis()+100;
