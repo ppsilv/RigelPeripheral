@@ -78,13 +78,13 @@ void __not_in_flash_func(gerenciar_barramento_m68k)(PIO pio, uint sm){
                         primitive_color = dado_m68k;
                         break;
                 case D_REG_WIDTH_HIGH:
-                        primitive_width = (uint16_t)(dado_m68k << 8) | (cursor_x & 0x00FF);
+                        primitive_width = (uint16_t)(dado_m68k << 8) | (primitive_width & 0x00FF);
                         break;
                 case D_REG_WIDTH_LOW:
                         primitive_width = (primitive_width & 0xFF00) | dado_m68k;
                         break;
                 case D_REG_HEIGHT_HIGH:
-                        primitive_height = (uint16_t)(dado_m68k << 8) | (cursor_x & 0x00FF);
+                        primitive_height = (uint16_t)(dado_m68k << 8) | (primitive_height & 0x00FF);
                         break;
                 case D_REG_HEIGHT_LOW:
                         primitive_height = (primitive_height & 0xFF00) | dado_m68k;
@@ -102,16 +102,28 @@ void __not_in_flash_func(gerenciar_barramento_m68k)(PIO pio, uint sm){
                         cursor_y = (cursor_y & 0xFF00) | dado_m68k;
                         break;
                 case D_REG_X1_HIGH:
-                        cursor_x1 = (uint16_t)(dado_m68k << 8) | (cursor_x & 0x00FF);
+                        cursor_x1 = (uint16_t)(dado_m68k << 8) | (cursor_x1 & 0x00FF);
                         break;
                 case D_REG_X1_LOW:
-                        cursor_x1 = (cursor_x & 0xFF00) | dado_m68k;
+                        cursor_x1 = (cursor_x1 & 0xFF00) | dado_m68k;
                         break;
                 case D_REG_Y1_HIGH:
-                        cursor_y1 = (uint16_t)(dado_m68k << 8) | (cursor_y & 0x00FF);
+                        cursor_y1 = (uint16_t)(dado_m68k << 8) | (cursor_y1 & 0x00FF);
                         break;
                 case D_REG_Y1_LOW:
-                        cursor_y1 = (cursor_y & 0xFF00) | dado_m68k;
+                        cursor_y1 = (cursor_y1 & 0xFF00) | dado_m68k;
+                        break;
+                case D_REG_X2_HIGH:
+                        cursor_x2 = (uint16_t)(dado_m68k << 8) | (cursor_x2 & 0x00FF);
+                        break;
+                case D_REG_X2_LOW:
+                        cursor_x2 = (cursor_x2 & 0xFF00) | dado_m68k;
+                        break;
+                case D_REG_Y2_HIGH:
+                        cursor_y2 = (uint16_t)(dado_m68k << 8) | (cursor_y2 & 0x00FF);
+                        break;
+                case D_REG_Y2_LOW:
+                        cursor_y2 = (cursor_y2 & 0xFF00) | dado_m68k;
                         break;
                 case D_REG_RAIO:
                         raio = dado_m68k;
