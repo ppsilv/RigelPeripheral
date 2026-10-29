@@ -54,7 +54,18 @@ void drawHLine(int x, int y, int w, color_t color) ;
 void fillRect(short x, short y, short w, short h, color_t color);
 bool bus_try_get_event32(uint32_t *value,PIO pio, uint sm);
 
+/* O timer so AVISA. Quem desenha o cursor e o core 1 (o mesmo que desenha
+   texto e graficos vindos do 68000). Assim nunca ha dois nucleos mexendo
+   na tela ao mesmo tempo, o que e obrigatorio para o cursor nao destrutivo. */
+static volatile bool blink_tick = false;
+
 static bool timer_callback(repeating_timer_t *rt)
+{
+    blink_tick = true;
+    return true;
+}
+
+static void blink_toggle(void)
 {
     if(last_toggle_time == 1){
         put_cursor(1);
@@ -64,7 +75,6 @@ static bool timer_callback(repeating_timer_t *rt)
         put_cursor(0);
         last_toggle_time = 1;
     }
-  return true;
 }
 static void create_timer(bool btimer)
 {
@@ -115,6 +125,11 @@ extern void __not_in_flash_func(gerenciar_barramento_m68k)(PIO pio, uint sm);
 void core1_entry() {
     while(1){
         gerenciar_barramento_m68k(bus_pio1, bus_sm);
+        /* so pisca o cursor quando nao ha escrita do 68000 esperando */
+        if (blink_tick && pio_sm_is_rx_fifo_empty(bus_pio1, bus_sm)) {
+            blink_tick = false;
+            blink_toggle();
+        }
         tight_loop_contents(); 
     }
 }
@@ -312,4 +327,4 @@ static void __not_in_flash_func(dma_memcpy)(void *dest, const void *src, size_t 
 
 
 
-#endif
+#endif

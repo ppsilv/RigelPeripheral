@@ -25,6 +25,21 @@ static void setTextCursorVisible(bool v);
 
 static vga_t * vga = NULL ;
 
+/* BEGIN_CURSOR_STATE */
+#define CUR_CELL_W 8      /* a celula desenhada por drawChar2 e sempre 8x16 */
+#define CUR_CELL_H 16
+#ifndef BS_ERASES
+#define BS_ERASES 1       /* 1 = backspace (0x08) anda para tras E apaga; 0 = so anda */
+#endif
+static bool     cur_drawn = false;   /* true = a barra do cursor esta na tela */
+static int16_t  cur_px = 0;          /* celula (em pixels) onde a barra esta desenhada */
+static int16_t  cur_py = 0;
+static uint8_t  cur_saved[CUR_CELL_W * CUR_CELL_H];  /* pixels (4 bits) que estavam embaixo */
+static uint8_t  esc_state = 0;       /* 0 normal, 1 recebeu ESC, 2 dentro de ESC [ */
+static uint16_t esc_param = 0;
+static bool     esc_skip = false;
+/* END_CURSOR_STATE */
+
 void PANIC(){
   panic("Erro critico no sistema!");
   while(1){
@@ -38,6 +53,8 @@ static void clrscr(){
   vga_text_private_t* priv = (vga_text_private_t*)vga->_private;
 
   memset(&priv->vga_data_array[0], 0, priv->txcount) ;
+  cur_drawn = false;   /* framebuffer zerado: nao ha nada para restaurar */
+  esc_state = 0;
   // reset cursor position
   priv->cursor->x = 0 ;
   priv->cursor->y = 0 ;
@@ -270,34 +287,150 @@ static void drawChar(vga_text_private_t* priv,uint8_t c, color_t color, color_t 
 }
 extern void scroll_up_graphics(void);
 
+/* BEGIN_CURSOR_SLICE */
+/* ====================================================================
+ * CURSOR NAO DESTRUTIVO
+ * Antes: a barra do cursor era desenhada POR CIMA da celula e "apagada"
+ * escrevendo um espaco. Toda vez que o cursor passava sobre um caractere,
+ * o caractere era destruido.
+ * Agora: ao desenhar a barra guardamos os pixels que estavam embaixo e,
+ * ao apagar, devolvemos esses pixels. O cursor nunca perde texto.
+ * Regra: todo desenho (texto, graficos, clrscr) precisa antes tirar a
+ * barra (cursor_erase / cursor_release), senao o cursor restauraria
+ * pixels velhos por cima do desenho novo.
+ * Todo desenho roda no core 1 (o timer so avisa o core 1).
+ * ==================================================================== */
+static uint8_t get_px(vga_text_private_t* priv, int x, int y) {
+  if (x < 0 || y < 0 || x > (priv->width - 1) || y > (priv->height - 1)) return 0;
+  int pixel = (priv->width * y) + x;
+  uint8_t b = priv->vga_data_array[pixel >> 1];
+  return (pixel & 1) ? (uint8_t)(b >> 4) : (uint8_t)(b & 0x0F);
+}
+
+/* Tira a barra e devolve o que estava embaixo. */
+static void cursor_erase(void) {
+  if (!cur_drawn) return;
+  for (int r = 0; r < CUR_CELL_H; r++) {
+    for (int col = 0; col < CUR_CELL_W; col++) {
+      drawPixel(cur_px + col, cur_py + r, cur_saved[r * CUR_CELL_W + col]);
+    }
+  }
+  cur_drawn = false;
+}
+
+/* Guarda o que esta embaixo e desenha a barra na posicao atual do cursor. */
+static void cursor_draw(vga_text_private_t* priv) {
+  int16_t x = priv->cursor->x;
+  int16_t y = priv->cursor->y;
+
+  if (cur_drawn) {
+    if (cur_px == x && cur_py == y) return;   /* ja esta aqui */
+    cursor_erase();                           /* estava em outra celula */
+  }
+  cur_px = x;
+  cur_py = y;
+  for (int r = 0; r < CUR_CELL_H; r++) {
+    for (int col = 0; col < CUR_CELL_W; col++) {
+      cur_saved[r * CUR_CELL_W + col] = get_px(priv, x + col, y + r);
+    }
+  }
+  drawChar(priv, priv->cursor->shape, priv->textcolor, priv->textbgcolor, 1);
+  cur_drawn = true;
+}
+
+/* Usada pelo orion_bus.c antes de qualquer comando vindo do 68000. */
+void cursor_release(void) {
+  cursor_erase();
+}
+
+/* Move o cursor (ESC [ n A/B/C/D). NAO apaga nada. */
+static void esc_execute(vga_text_private_t* priv, uint8_t final) {
+  int n  = esc_param ? esc_param : 1;
+  int fw = priv->font.width;
+  int fh = priv->font.height;
+  int x  = priv->cursor->x;
+  int y  = priv->cursor->y;
+  int maxx = (priv->width  / fw - 1) * fw;
+  int maxy = (priv->height / fh - 1) * fh;
+
+  switch (final) {
+    case 'A': y -= n * fh; break;   /* cima     */
+    case 'B': y += n * fh; break;   /* baixo    */
+    case 'C': x += n * fw; break;   /* direita  */
+    case 'D': x -= n * fw; break;   /* esquerda */
+    default:  return;               /* sequencia desconhecida: ignora */
+  }
+  if (x < 0) x = 0;
+  if (x > maxx) x = maxx;
+  if (y < 0) y = 0;
+  if (y > maxy) y = maxy;
+  priv->cursor->x = x;
+  priv->cursor->y = y;
+}
+
 void tft_write(uint8_t c){
   vga_text_private_t* priv = (vga_text_private_t*)vga->_private;
 
+  /* 0. Antes de mexer em qualquer coisa: tira a barra e devolve o que estava embaixo */
+  cursor_erase();
+
+  /* 1. Sequencias de escape ANSI: ESC [ n A/B/C/D (setas) */
+  if (esc_state == 1) {
+    if (c == '[') {
+      esc_state = 2;
+      esc_param = 0;
+      esc_skip  = false;
+      return;
+    }
+    esc_state = 0;          /* ESC solto: ignora o ESC e trata este byte normalmente */
+  } else if (esc_state == 2) {
+    if (c >= '0' && c <= '9') {
+      if (!esc_skip && esc_param < 1000) esc_param = (uint16_t)(esc_param * 10 + (c - '0'));
+      return;
+    }
+    if (c == ';') {         /* so o primeiro parametro importa para as setas */
+      esc_skip = true;
+      return;
+    }
+    if (c >= 0x40 && c <= 0x7E) {   /* byte final da sequencia */
+      esc_state = 0;
+      esc_execute(priv, c);
+      return;
+    }
+    esc_state = 0;          /* byte inesperado: aborta a sequencia e trata normalmente */
+  }
+  if (c == 0x1B) {
+    esc_state = 1;
+    return;
+  }
+
+  /* 2. Caracteres normais e de controle */
   switch(c){
-    case 0x0A:  // \n
-              put_cursor(0);
+    case 0x0A:  // \n (faz tambem o \r)
               priv->cursor->y += priv->font.height;
+              /* fall through */
     case 0x0D:  // \r
-              priv->cursor->x  = 0;
-              put_cursor(1);
+              priv->cursor->x = 0;
               break;
-    case 0x08:  // backspace
-              put_cursor(0);
+    case 0x08:  // backspace: anda para tras e (BS_ERASES) apaga a celula
               priv->cursor->x -= priv->font.width;
-              if(priv->cursor->x < 0){
-                priv->cursor->x = 0;       
+              if (priv->cursor->x < 0) {
+                priv->cursor->x = 0;
               }
-              put_cursor(1);
+#if BS_ERASES
+              drawChar(priv, ' ', priv->textcolor, priv->textbgcolor, priv->font.size);
+#endif
               break;
-    case 0x09:  // \t
+    case 0x09: { // \t
               int new_x = priv->cursor->x + priv->tabspace;
               if (new_x < priv->width){
                   priv->cursor->x = new_x;
               }
               break;
+    }
     default:
               drawChar(priv, c, priv->textcolor, priv->textbgcolor, priv->font.size);
-              priv->cursor->x += priv->font.width;  //multiply last so much time
+              priv->cursor->x += priv->font.width;
 
               if(priv->cursor->x >= priv->width ) {
                 priv->cursor->y += priv->font.height;
@@ -305,37 +438,30 @@ void tft_write(uint8_t c){
               }
   }
   if( priv->cursor->y >= priv->height ){
-    //clrscr();
     scroll_up_graphics();
     priv->cursor->x = 0;
     priv->cursor->y -= priv->font.height;
   }
 }
 
+/* Chamada pelo "timer" de piscar (no core 1). c=1 mostra, c=0 esconde. */
 void put_cursor(uint8_t c){
   vga_text_private_t* priv = (vga_text_private_t*)vga->_private;
 
-  uint16_t cursorx=priv->cursor->x;
-  uint16_t cursory=priv->cursor->y;
-
-  cursorx += priv->font.size*priv->font.width;
-  if ((cursorx > (priv->width - priv->font.size*6))) {
-    cursory += priv->font.height;
-    cursorx = 0;
+  if( priv->cursor->visible == false ){
+    cursor_erase();                 /* escondido: so garante que nao sobrou barra */
+    return;
   }
-  if( priv->cursor->visible == true ){
-    if( priv->cursor->blink == true ){
-      if( c )
-        drawChar(priv, priv->cursor->shape, priv->textcolor, priv->textbgcolor, 1);
-      else  
-        drawChar(priv, ' ', priv->textcolor, priv->textbgcolor, 1);
-    }else{
-        drawChar(priv, priv->cursor->shape, priv->textcolor, priv->textbgcolor, 1);
-    }
+  if( priv->cursor->blink == true ){
+    if( c )
+      cursor_draw(priv);
+    else
+      cursor_erase();
   }else{
-        drawChar(priv, ' ', priv->textcolor, priv->textbgcolor, 1);
+    cursor_draw(priv);              /* sem piscar: sempre visivel */
   }
 }
+/* END_CURSOR_SLICE */
 
 //uint8_t bufferA[2400];
 //uint8_t bufferB[2400];
@@ -622,4 +748,4 @@ void change_mode(screenMode_t mode) {
 
   reset();
 
-}
+}

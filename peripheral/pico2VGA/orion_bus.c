@@ -21,6 +21,7 @@
 bool bkd_int=false;
 
 extern vga_t *vga;
+extern void cursor_release(void);   /* vga_primitives.c: tira a barra do cursor antes de desenhar */
 volatile uint16_t cursor_x;
 volatile uint16_t cursor_y;
 volatile uint16_t cursor_x1;
@@ -141,6 +142,7 @@ void __not_in_flash_func(gerenciar_barramento_m68k)(PIO pio, uint sm){
                     break;    
 
                 case D_RUN_CMD:
+                    cursor_release();   // devolve o que estava sob o cursor antes de qualquer comando
                     switch(dado_m68k){
                         case CMD_SET_CUR_ON:
                             vga->setTextCursorVisible(true);
