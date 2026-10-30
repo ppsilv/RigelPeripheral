@@ -541,9 +541,13 @@ static uint16_t get_blink_interval(void){
   vga_text_private_t* priv = (vga_text_private_t*)vga->_private;
   return priv->cursor->blink_interval;
 }
+/* 1 = o 68000 mandeu esconder o cursor (CMD_SET_CUR_OFF). Enquanto estiver 1, nenhuma outra rotina
+   (WRITE_SCREEN, scroll, clrscr...) consegue religar o cursor com setTextCursorVisible(true). */
+volatile bool cursor_forced_off = false;
+
 static void setTextCursorVisible(bool v) {
   vga_text_private_t* priv = (vga_text_private_t*)vga->_private;
-  priv->cursor->visible = v;
+  priv->cursor->visible = v && !cursor_forced_off;
 }
 static void setTextCursorBlink(bool b) {
   vga_text_private_t* priv = (vga_text_private_t*)vga->_private;

@@ -22,6 +22,11 @@ bool bkd_int=false;
 
 extern vga_t *vga;
 extern void cursor_release(void);   /* vga_primitives.c: tira a barra do cursor antes de desenhar */
+#ifndef CMD_CUR_LOCK_HIDE
+#define CMD_CUR_LOCK_HIDE 0xB1   /* novo: esconde o cursor de forma travada */
+#define CMD_CUR_UNLOCK    0xB0   /* novo: destrava e mostra o cursor */
+#endif
+extern volatile bool cursor_forced_off;   /* vga_primitives.c: 1 = 68000 pediu cursor escondido */
 volatile uint16_t cursor_x;
 volatile uint16_t cursor_y;
 volatile uint16_t cursor_x1;
@@ -150,10 +155,19 @@ void __not_in_flash_func(gerenciar_barramento_m68k)(PIO pio, uint sm){
                         case CMD_SET_CUR_OFF:
                             vga->setTextCursorVisible(false);
                             break;
+                        case CMD_CUR_LOCK_HIDE:         /* gshell: esconde e NAO deixa o WRITE_SCREEN religar */
+                            cursor_forced_off = true;
+                            vga->setTextCursorVisible(false);
+                            break;
+                        case CMD_CUR_UNLOCK:
+                            cursor_forced_off = false;
+                            vga->setTextCursorVisible(true);
+                            break;
                         case CMD_SET_CUR_POS:
                             vga->setTextCursorPos(cursor_x,cursor_y);
                             break;
                         case CMD_CLEAR_SCREEN:
+                            cursor_forced_off = false;      /* rede de seguranca: clear devolve o cursor */
                             vga->clrscr();
                             cursor_x = cursor_y = 0;
                             break;
